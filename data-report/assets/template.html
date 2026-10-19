@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REPLACE: plain title</title>
+<style>
+/* Tokens. Black page, white text, one accent. Change --accent / --accent-2 per report; nothing else. */
+:root {
+  color-scheme: dark;
+  --bg: #000;
+  --fg: #fff;
+  --fg-2: #b4b4b4;      /* secondary text, captions */
+  --fg-3: #8a8a8a;      /* tertiary: meta lines, axis labels */
+  --line: #1f1f1f;      /* hairlines */
+  --line-2: #333;       /* control borders */
+  --surface: #0d0d0d;   /* table header, control fill */
+  --track: #1a1a1a;     /* empty part of an inline bar */
+  --accent: #8fd0ff;    /* primary series */
+  --accent-2: #a99bf5;  /* second series, only when a chart needs one */
+  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+/* Optional light page: <html class="light">. The default is always dark. */
+:root.light {
+  color-scheme: light;
+  --bg: #fff; --fg: #111; --fg-2: #555; --fg-3: #777;
+  --line: #e6e6e6; --line-2: #c9c9c9; --surface: #f6f6f6; --track: #ececec;
+  --accent: #1e7fc4; --accent-2: #6c58d6;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0; padding: 32px 28px 96px;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.5 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+main { max-width: 1120px; margin: 0 auto; }
+
+h1 { font-size: 34px; line-height: 1.15; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 14px; }
+h2 { font-size: 22px; line-height: 1.25; font-weight: 650; letter-spacing: -0.01em; margin: 56px 0 14px; }
+p  { margin: 0 0 14px; max-width: 78ch; }
+strong { font-weight: 650; }
+a { color: inherit; text-underline-offset: 3px; }
+code { font: 0.9em var(--mono); }
+
+.meta    { color: var(--fg-3); font-size: 15px; margin: 0 0 22px; }
+.lead    { font-size: 17px; max-width: 80ch; }
+.note    { color: var(--fg-2); font-size: 14px; line-height: 1.55; max-width: 90ch; }
+.caption { color: var(--fg-2); font-size: 14px; margin: 18px 0 10px; max-width: 90ch; }
+
+/* Numbered findings and bulleted takeaways: bold lead-in, then the evidence. */
+ol.findings, ul.takeaways { padding-left: 22px; margin: 0 0 14px; max-width: 90ch; }
+ol.findings li, ul.takeaways li { padding-left: 6px; margin: 0 0 12px; }
+
+/* Stat tiles: big number, small muted label. No boxes, no icons. */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 28px; margin: 28px 0 8px; }
+.stat b { display: block; font-size: 38px; line-height: 1.1; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat span { display: block; margin-top: 6px; color: var(--fg-3); font-size: 14px; }
+
+/* Controls: native elements, label above. */
+.controls { display: flex; flex-wrap: wrap; gap: 18px 22px; margin: 18px 0 20px; }
+.controls label { display: block; font-size: 14px; margin-bottom: 8px; }
+.controls select, .controls input {
+  height: 44px; min-width: 200px; padding: 0 12px;
+  font: inherit; font-size: 15px; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line-2); border-radius: 2px;
+}
+.controls input::placeholder { color: var(--fg-3); }
+.controls select:focus-visible, .controls input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.summary { color: var(--fg-2); font-size: 14px; margin: 0 0 18px; }
+
+/* Bar list: label, bar, value. One color. */
+.bars { display: grid; grid-template-columns: minmax(120px, 280px) 1fr 90px; gap: 10px 20px; align-items: center; margin: 0 0 28px; }
+.bars .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bars .val  { text-align: right; font-variant-numeric: tabular-nums; }
+.bars .bar  { height: 8px; position: relative; }
+.bars .bar i { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+
+/* Tables: hairline rows, muted header, right-aligned tabular numbers. */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { padding: 14px 12px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--fg-2); font-weight: 650; font-size: 14px; background: var(--surface); }
+th:first-child, td:first-child, .left { text-align: left; }
+tbody tr:hover { background: var(--surface); }
+tr.total td { font-weight: 650; }
+td .cell-bar { display: inline-flex; align-items: center; gap: 12px; }
+td .cell-bar i { display: block; height: 8px; border-radius: 1px; background: var(--accent); }
+.muted { color: var(--fg-3); }
+
+/* Charts: faint horizontal grid only, direct labels, no legend box. */
+.chart { width: 100%; margin: 6px 0 28px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--fg-3); font: 13px var(--font); }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .line { fill: none; stroke-width: 2; stroke-linejoin: round; }
+
+hr { border: 0; border-top: 1px solid var(--line); margin: 48px 0 0; }
+@media (max-width: 720px) {
+  body { padding: 24px 16px 72px; }
+  h1 { font-size: 28px; }
+  .bars { grid-template-columns: minmax(90px, 140px) 1fr 70px; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<!--
+  SAMPLE CONTENT. Every number, label and sentence below is a placeholder that shows the pattern.
+  Replace all of it with real data and real findings. Delete sections the data does not support.
+-->
+
+<h1>REPLACE: plain noun phrase or the question the data answers</h1>
+<p class="meta">12,480 records · 9,310 timed · June 1–June 30, 2026 · Local machine</p>
+<p class="lead"><strong>Lead with the finding, in one sentence.</strong> Then the caveat that stops the reader misreading the headline number. It is not the same as user waiting time.</p>
+
+<h2>What to change</h2>
+<ol class="findings">
+  <li><strong>First thing:</strong> one record took 41.7 minutes; another took 9.2. Scope the query to a known directory.</li>
+  <li><strong>Second thing:</strong> 516 calls used 4.23 hours. Median 25.1 s; p95 74.1 s. Run the focused test before the full suite.</li>
+  <li><strong>Small target:</strong> 6 ms in the normal case, from 10 samples. Not worth the effort yet.</li>
+</ol>
+
+<div class="stats">
+  <div class="stat"><b>423.60M</b><span>input + output tokens</span></div>
+  <div class="stat"><b>$573.86</b><span>standard API-equivalent subtotal</span></div>
+  <div class="stat"><b>29h 33m</b><span>first to last response</span></div>
+  <div class="stat"><b>3,550</b><span>unique responses</span></div>
+</div>
+
+<h2>Explore the data</h2>
+<p>What the default view hides, and what it does not claim to measure.</p>
+<div class="controls">
+  <div><label for="f-view">View</label>
+    <select id="f-view"><option value="focused">Focused</option><option value="all">Everything</option></select></div>
+  <div><label for="f-sort">Sort</label>
+    <select id="f-sort"><option value="total">Total duration</option><option value="calls">Calls</option><option value="p95">p95</option></select></div>
+  <div><label for="f-filter">Filter</label>
+    <input id="f-filter" type="search" placeholder="Name or category"></div>
+</div>
+<p class="summary" id="summary"></p>
+<div class="bars" id="bars"></div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Name</th><th>Calls</th><th>Total</th><th>Median</th><th>p95</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<h2>Change over time</h2>
+<p class="caption">White: cumulative value, left axis. Purple: share used, right axis. The lines are observations, not a model of how the provider charges.</p>
+<div class="chart" id="chart"></div>
+
+<h2>Scoreboard</h2>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th class="left">#</th><th class="left">Model</th><th>Score</th><th></th><th>Wrong claims</th><th>Time</th><th>Cost</th></tr></thead>
+    <tbody id="score"></tbody>
+  </table>
+</div>
+<p class="note" style="margin-top:14px">How the score is computed, what was dropped, and what the judges did not know.</p>
+
+<h2>Limits of this result</h2>
+<p class="note">Say what was inferred rather than captured. Say what the sample cannot show. Say what a reader should not conclude.</p>
+
+</main>
+
+<script>
+// ---- Data. Replace with the real thing. Keep it inline so the file works offline. ----
+const DATA = {
+  rows: [
+    { name: "shell",        cat: "core",  calls: 29966, total: 22.93 * 3600, median: 0.0,   p95: 2.95,  focused: true },
+    { name: "test_sim",     cat: "sim",   calls: 521,   total: 4.23 * 3600,  median: 25.08, p95: 73.8,  focused: true },
+    { name: "build_run_sim",cat: "sim",   calls: 294,   total: 1.08 * 3600,  median: 8.97,  p95: 32.49, focused: true },
+    { name: "Bash",         cat: "core",  calls: 9627,  total: 59.73 * 60,   median: 0.072, p95: 3.19,  focused: true },
+    { name: "dev-server",   cat: "life",  calls: 12,    total: 53.4 * 3600,  median: 4400,  p95: 9000,  focused: false },
+  ],
+  series: {
+    a: { label: "API value", color: "var(--fg)", axis: "left",  step: true,
+         points: [[0, 0], [10, 12], [20, 30], [30, 31], [40, 180], [50, 240], [60, 560]] },
+    b: { label: "Quota used", color: "var(--accent-2)", axis: "right", step: true,
+         points: [[0, 1], [10, 2], [20, 4], [30, 6], [40, 35], [50, 70], [60, 100]] },
+  },
+  scores: [
+    { model: "Model A", effort: "max",   score: 8.84, wrong: "0 of 38", time: "28m 34s", cost: "$4.19",  color: "#d9d9d9" },
+    { model: "Model B", effort: "max",   score: 8.78, wrong: "1 of 34", time: "49m 54s", cost: "$24.01", color: "#e8997a" },
+    { model: "Model C", effort: "xhigh", score: 8.59, wrong: "0 of 34", time: "20m 10s", cost: "$14.20", color: "#d9d9d9" },
+  ],
+};
+
+// ---- Formatters. Pick units per magnitude; never show more precision than the data has. ----
+const fmt = {
+  int: n => n.toLocaleString("en-US"),
+  dur(s) {
+    if (s >= 3600) return (s / 3600).toFixed(2) + " h";
+    if (s >= 60)   return (s / 60).toFixed(2) + " min";
+    if (s >= 1)    return s.toFixed(2) + " s";
+    return (s * 1000).toFixed(1) + " ms";
+  },
+};
+const $ = id => document.getElementById(id);
+
+// ---- Explorer: bars and table share one filtered, sorted list. ----
+function renderExplorer() {
+  const view = $("f-view").value, key = $("f-sort").value, q = $("f-filter").value.trim().toLowerCase();
+  let rows = DATA.rows.filter(r => (view === "all" || r.focused) && (!q || (r.name + " " + r.cat).toLowerCase().includes(q)));
+  rows.sort((a, b) => b[key] - a[key]);
+  const max = Math.max(...rows.map(r => r[key]), 1);
+  $("summary").textContent = `${rows.length} groups · ${fmt.int(rows.reduce((s, r) => s + r.calls, 0))} calls · ${fmt.dur(rows.reduce((s, r) => s + r.total, 0))} summed duration`;
+  $("bars").innerHTML = rows.map(r =>
+    `<div class="name">${r.name}</div><div class="bar"><i style="width:${(r[key] / max * 100).toFixed(2)}%"></i></div><div class="val">${key === "calls" ? fmt.int(r.calls) : fmt.dur(r[key])}</div>`).join("");
+  $("rows").innerHTML = rows.map(r =>
+    `<tr><td>${r.name}</td><td>${fmt.int(r.calls)}</td><td>${fmt.dur(r.total)}</td><td>${fmt.dur(r.median)}</td><td>${fmt.dur(r.p95)}</td></tr>`).join("");
+}
+["f-view", "f-sort", "f-filter"].forEach(id => $(id).addEventListener("input", renderExplorer));
+
+// ---- Scoreboard: inline bar in the score column, bar colored by group, not by rank. ----
+function renderScores() {
+  $("score").innerHTML = DATA.scores.map((r, i) =>
+    `<tr><td class="muted left">${i + 1}</td><td class="left" style="color:${r.color}">${r.model} <span class="muted">${r.effort}</span></td>
+     <td><b>${r.score.toFixed(2)}</b></td>
+     <td><span class="cell-bar"><i style="width:${r.score * 30}px;background:${r.color}"></i></span></td>
+     <td>${r.wrong}</td><td>${r.time}</td><td>${r.cost}</td></tr>`).join("");
+}
+
+// ---- Line chart: horizontal grid, tick labels, optional second axis, optional step, direct end labels. ----
+function renderChart() {
+  const el = $("chart"), W = Math.max(el.clientWidth, 320), H = Math.round(W * 0.38);
+  const m = { l: 56, r: 56, t: 14, b: 34 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const all = Object.values(DATA.series), xs = all.flatMap(s => s.points.map(p => p[0]));
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const ymax = ax => Math.max(...all.filter(s => s.axis === ax).flatMap(s => s.points.map(p => p[1]))) || 1;
+  const nice = v => { const p = 10 ** Math.floor(Math.log10(v)); return Math.ceil(v / p) * p; };
+  const L = nice(ymax("left")), R = nice(ymax("right"));
+  const X = v => m.l + (v - x0) / (x1 - x0) * iw, Y = (v, max) => m.t + ih - v / max * ih;
+  let g = "";
+  for (let i = 0; i <= 2; i++) {
+    const y = m.t + ih - i / 2 * ih;
+    g += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${y}" y2="${y}"/>`
+       + `<text x="${m.l - 10}" y="${y + 4}" text-anchor="end">$${fmt.int(L * i / 2)}</text>`
+       + `<text x="${W - m.r + 10}" y="${y + 4}">${R * i / 2}%</text>`;
+  }
+  [x0, (x0 + x1) / 2, x1].forEach((v, i) => g += `<text x="${X(v)}" y="${H - 8}" text-anchor="${["start", "middle", "end"][i]}">t = ${v}</text>`);
+  const paths = all.map(s => {
+    const max = s.axis === "left" ? L : R;
+    const pts = s.points.map(([x, y]) => [X(x), Y(y, max)]);
+    const d = pts.map(([x, y], i) => i === 0 ? `M${x},${y}` : s.step ? `H${x}V${y}` : `L${x},${y}`).join("");
+    return `<path class="line" d="${d}" stroke="${s.color}"/>`;
+  }).join("");
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Line chart">${g}${paths}</svg>`;
+}
+
+renderExplorer(); renderScores(); renderChart();
+addEventListener("resize", renderChart);
+</script>
+</body>
+</html>
