@@ -12,3 +12,4 @@ ln -s ~/code/skills/<name> ~/.claude/skills/<name>
 ## Skills
 
 - `data-report`: turn data into a plain, dense, self-contained HTML report.
+- `review-loop`: have a read-only reviewer subagent (user-chosen model) review your changes, triage its findings, fix, and repeat until clean.
