@@ -1,0 +1,19 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "useGitignore": true,
+  "ignorePaths": ["drizzle", "node_modules", "cspell.json", "bun.lock"],
+  "words": [
+    "bunx",
+    "callees",
+    "createdb",
+    "nosniff",
+    "oxfmt",
+    "oxlint",
+    "partialize",
+    "refetches",
+    "shadcn",
+    "sonner",
+    "turbopack"
+  ]
+}

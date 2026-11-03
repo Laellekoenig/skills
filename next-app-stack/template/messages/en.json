@@ -1,0 +1,21 @@
+{
+  "home": {
+    "title": "__APP_NAME__",
+    "signedInAs": "Signed in as {name}.",
+    "signedOut": "You are not signed in.",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "login": {
+    "title": "Sign in",
+    "withGoogle": "Continue with Google"
+  },
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Try again",
+    "pageNotFound": "This page does not exist.",
+    "backToHome": "Back to home",
+    "unavailable": "__APP_NAME__ is unavailable",
+    "unavailableBody": "Please try again in a moment."
+  }
+}

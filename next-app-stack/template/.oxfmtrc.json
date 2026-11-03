@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": false,
+  "arrowParens": "avoid",
+  "experimentalOperatorPosition": "start",
+  "singleAttributePerLine": true,
+  "printWidth": 80,
+  "sortPackageJson": false,
+  "ignorePatterns": ["drizzle"]
+}
