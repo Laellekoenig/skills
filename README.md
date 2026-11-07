@@ -13,5 +13,5 @@ ln -s ~/code/skills/<name> ~/.claude/skills/<name>
 
 - `data-report`: turn data into a plain, dense, self-contained HTML report.
 - `review-loop`: have a read-only reviewer subagent (user-chosen model) review your changes, triage its findings, fix, and repeat until clean.
-- `ui-review-loop`: Claude and OpenAI subagents review a UI change on the running app; apply valid feedback and repeat.
+- `hill-climb`: two judge subagents on different models score each version against the user's goal; keep what scores better and repeat until both are satisfied. Covers UI, motion, writing, names, prompts and code.
 - `next-app-stack`: scaffold a full-stack Next.js + Bun app (Better Auth, Drizzle, Tailwind/shadcn, TanStack Query, better-result, Oxlint) with its conventions.
